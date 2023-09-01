@@ -9,7 +9,8 @@ const Show = ({item}) => {
 
 	return (
 		<div>
-			<h1 style={{textAlign: 'center'}}>ShowPage for {item.name}</h1>
+			<h1 style={{textAlign: 'center'}}>Show Page</h1>
+			<h2>{ item.name }</h2>
 			{ itemDescription }
 		</div>
 	)

@@ -12,7 +12,13 @@ const app = express();
 app.set('view engine', 'jsx');
 app.engine('jsx', require('express-react-views').createEngine());
 
+// Middleware
+app.use((req, res, next) => {
+    // console.log('I run for all routes');
+    next();
+});
 
+app.use(express.urlencoded({extended:false}));
 
 // === Routes ===========================
 
@@ -26,7 +32,21 @@ app.get('/data', (req, res) => {
 	res.render('Index', { items: data })
 })
 
-// Show routes 
+// Create route
+app.get('/data/new', (req, res) => {
+    res.render('New');
+});
+
+// Post route
+app.post('/data', (req, res) => {
+    if(req.body.attr1 === 'on') { req.body.attr1 = true; } 
+	else { req.body.attr1 = false; } 
+    data.push(req.body);
+    // res.send("Data received");
+	res.redirect('/data');
+});
+
+// Show route 
 app.get('/data/:index', (req, res) => {
 	res.render('Show', { item: data[req.params.index] })
 })
