@@ -1,13 +1,18 @@
 import React from 'react'
 
-const Index = ({ items }) => {
+const Index = ({ data }) => {
 
-	const itemList = items.map((item, index) => { return ( 
+	const itemList = data.map( (item, index) => { return ( 
 
-		<li style={{border: '1px solid gray', margin: '10px', padding: '10px'}}>
+		<li style={{border: '1px solid gray', margin: '10px', padding: '10px'}} key={index}>
 		
-			<a href={`/data/${index}`}>{item.name}</a> has ID {item.id}, and 
-			its Boolean attribute 'attr1' is set to '{String(item.attr1)}'.
+			The item <a href={`/data/${index}`}>{item.name}</a> has ID {item.id}, 
+			and its Boolean attribute 'attr1' is set to '{String(item.attr1)}'.<br />
+
+			<a href={`/data/${item._id}/edit`}>Edit</a>
+				<form action={`/data/${item._id}?_method=DELETE`} method="POST"  >
+					<input type="submit" value="DELETE"/>
+				</form>
 		
 		</li> 
 

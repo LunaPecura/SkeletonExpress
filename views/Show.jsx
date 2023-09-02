@@ -2,8 +2,8 @@ import React from 'react'
 
 const Show = ({item}) => {
 
-	const itemDescription = Object.keys(item).map(key => {
-		return (<div>{key}: '{String(item[key])}'</div>)
+	const itemDescription = Object.keys(item).map( (key, index) => {
+		return (<div key={index}>{key}: '{String(item[key])}'</div>)
 	}) 
 
 

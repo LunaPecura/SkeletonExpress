@@ -1,55 +1,79 @@
 
-const data = require('./models/data');
 
 // Set port
 const PORT = 3000;
 
-// Load Express module and create app
+// Load & instantiate express
 const express = require('express');
 const app = express();
 
-// Configure app
-app.set('view engine', 'jsx');
-app.engine('jsx', require('express-react-views').createEngine());
+require('dotenv').config();
+const mongoose = require('mongoose');
+const Data = require('./models/data.js');
+const methodOverride = require('method-override')
+
 
 // Middleware
-app.use((req, res, next) => {
-    // console.log('I run for all routes');
-    next();
-});
-
+app.set('view engine', 'jsx');
+app.engine('jsx', require('express-react-views').createEngine());
 app.use(express.urlencoded({extended:false}));
+app.use(methodOverride('_method'))
+app.use((req, res, next) => { /* console.log(''); */ next(); });
 
-// === Routes ===========================
+// Connect to Mongoose
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connection.once('open', () => { console.log('connected to mongo'); });
+
+
+
+// === Routes ==========================================================
 
 // Main route
-app.get('/', (req, res) => {
-	res.send("<h1>Main</h1>");
-})
+app.get('/', (req, res) => { res.send("<h1>Main</h1>"); })
 
 // Index route 
-app.get('/data', (req, res) => {
-	res.render('Index', { items: data })
-})
-
-// Create route
-app.get('/data/new', (req, res) => {
-    res.render('New');
+app.get('/data', async (req, res) => {
+	Data.find({}).then( allData => {
+		res.render('Index', { data: allData });
+	});
 });
 
 // Post route
-app.post('/data', (req, res) => {
-    if(req.body.attr1 === 'on') { req.body.attr1 = true; } 
-	else { req.body.attr1 = false; } 
-    data.push(req.body);
-    // res.send("Data received");
-	res.redirect('/data');
+app.post('/data', async (req, res) => {
+	req.body.attr1 = req.body.attr1 === 'on';
+	Data.create(req.body).then( newData => {
+		res.send(newData);
+		res.redirect('/data');
+	})
 });
 
-// Show route 
-app.get('/data/:index', (req, res) => {
-	res.render('Show', { item: data[req.params.index] })
+// Create route
+app.get('/data/new', (req, res) => { res.render('New'); });
+
+// Delete route
+app.delete('/data/:index', async (req, res) => {
+	await Data.findByIdAndRemove(req.params.index)
+	res.redirect('/data')
+});
+
+// Update route
+app.put('/data/:index', async (req, res) => {
+	req.body.attr1 = req.body.attr1 === 'on';
+	await Data.findByIdAndUpdate(req.params.index, req.body);
+	res.redirect(`/data/${req.params.index}`);
+});
+
+// Edit route
+app.get('/data/:index/edit', async (req, res) => {
+	const foundItem =  await Data.findById(req.params.index) 
+	res.render('Edit', {item: foundItem})
 })
+
+// Show route 
+app.get("/data/:index", async (req, res) => {
+	const foundItem = await Data.findById(req.params.index);
+	res.render('Show', {item: foundItem})
+});
 
 
 
